@@ -14,20 +14,28 @@ function getItemsFromLocalStorage() {
     return JSON.parse(items);
 }
 
-async function renderItem(item) {
-    console.log(item);
+async function updatePriceQuantity(localStorage) {
+  let price = 0;
+  let quantity = 0;
+
+  // Calcul du prix du panier
+  for (let i = 0; localStorage[i]; i++) {
+    let data = await getDataById(localStorage[i].id);
+    price += parseInt(localStorage[i].quantity) * parseInt(data.price);
+    quantity += parseInt(localStorage[i].quantity);
+  }
+      // Add Price & Quantity
+      document.getElementById('totalPrice').textContent = `${price}`
+      document.getElementById('totalQuantity').textContent = `${quantity}` 
 }
 
 async function renderItems() {
     const localItems = getItemsFromLocalStorage();
-    let price = 0;
-    let quantity = 0;
+
     for (let i = 0; localItems[i]; i++) {
         let data = await getDataById(localItems[i].id);
-        price += parseInt(localItems[i].quantity) * parseInt(data.price);
-        quantity += parseInt(localItems[i].quantity);
-
         let elem = document.createElement('article');
+
         elem.classList.add("cart__item");
         elem.setAttribute("data-id", localItems[i].id);
         elem.setAttribute("data-color", localItems[i].color);
@@ -47,7 +55,7 @@ async function renderItems() {
                       <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="42">
                     </div>
                     <div class="cart__item__content__settings__delete">
-                      <p class="deleteItem" key="${localItems[i].id}">Supprimer</p>
+                      <button class="deleteItem" key="${localItems[i].id}" onclick="deleteNode('${localItems[i].id}', '${localItems[i].color}')">Supprimer</button>
                     </div>
                   </div>
                 </div>
@@ -56,9 +64,29 @@ async function renderItems() {
 
     }
 
-    // Add Price & Quantity
-    document.getElementById('totalPrice').textContent = `${price}`
-    document.getElementById('totalQuantity').textContent = `${quantity}` 
+    updatePriceQuantity(localItems);
+}
+
+function deleteNode(id, color) {
+
+  let array = getItemsFromLocalStorage();
+
+  // ----- Find the index of our cart to remove it ----- //
+    // 1. Create an array of id from local storage
+  let idArray = [];
+  for (let i = 0; array[i]; i++)
+    idArray.push(array[i].id);
+
+    // 2. Delete the html article related to this id
+  let cartItems = document.getElementById("cart__items");
+  let cartItem = document.querySelector(`[data-id="${id}"][data-color="${color}"]`);
+  cartItems.removeChild(cartItem);
+    // ----- Update localStorage without our deleted item ----- //
+  let result = array.filter(node => (id != node.id || color != node.color));
+  localStorage.setItem("items", JSON.stringify(result));
+      
+    // ----- Update price and quantity ----- //
+    updatePriceQuantity(result);
 }
 
 renderItems();
