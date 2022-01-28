@@ -117,3 +117,161 @@ function deleteNode(id, color) {
 
 
 renderItems();
+
+
+
+//  FORM
+
+// // ----- Show a message in function of the type
+// function showMessage(input, message, type) {
+//   // get our ErrorMsg element and set our message on it
+//   const msg = input.parentNode.getDataById('ErrorMsg');
+
+//   msg.innerText = "Test";
+//   // update the class for the input
+//   return type;
+// }
+
+function showMessage(input, message, type) {
+  const msg = input.parentNode.querySelector("#ErrorMsg");
+  msg.innerText = message;
+
+  if (type)
+    msg.innerText = '';
+  return type;
+}
+
+function showError(input, message) {
+  return showMessage(input, message, false);
+}
+
+function showSuccess(input) {
+  return showMessage(input, "", true);
+}
+
+function hasValue(input, message) {
+  if (input.value.trim() === "")
+    return showError(input, message);
+  return showSuccess(input);
+}
+
+function validateName(input, requiredMsg, invalidMsg) {
+  // check if the value is not empty
+  if (!hasValue(input, requiredMsg)) {
+    return false;
+  }
+  const nameRegex = /[a-z]/gi;
+  const name = input.value;
+  if (!nameRegex.test(name)) {
+    console.log('cc')
+    return showError(input, invalidMsg);
+  }
+  return true;
+}
+
+function validateEmail(input, requiredMsg, invalidMsg) {
+  // check if the value is not empty
+  if (!hasValue(input, requiredMsg)) {
+    return false;
+  }
+  // validate email format
+  const emailRegex =
+    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+  const email = input.value.trim();
+  if (!emailRegex.test(email)) {
+    return showError(input, invalidMsg);
+  }
+  return true;
+}
+
+const form = document.getElementsByClassName('cart__order__form')[0];
+const errName = 'Please enter your name !';
+const nameErr = 'Please enter a correct name !'
+const errAddress = 'Please enter your address !';
+const errCity = 'Please enter your city !'
+const errMail = 'please enter your mail !';
+const mailErr = 'Please enter a correct email address format';
+
+form.addEventListener("submit", (e) => {
+  // stop submission
+  e.preventDefault();
+
+
+  // validate the form
+
+  let nameValid = validateName(form.elements["firstName"], errName, nameErr);
+  let lastNameValid = validateName(form.elements["lastName"], errName, nameErr);
+  let adressValid = hasValue(form.elements["address"], errAddress);
+  let emailValid = validateEmail(form.elements["email"], errMail, mailErr);
+  if (emailValid && nameValid && lastNameValid && adressValid) {
+    let input = new FormData(document.querySelector('form'));
+    // (async () => {
+    //   const rawResponse = await fetch('http://localhost:3000/api/products/order', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Accept': 'application/json',
+    //       'Content-Type': 'application/json'
+    //     },
+    //     body: JSON.stringify(data)
+    //   });
+    //   const content = await rawResponse.json();
+
+    //   console.log(content);
+    // })();
+    let inputName = document.getElementById('firstName');
+    let inputLastName = document.getElementById('lastName');
+    let inputAdress = document.getElementById('address');
+    let inputCity = document.getElementById('city');
+    let inputMail = document.getElementById('email');
+    let idProducts = [];
+    let data = getItemsFromLocalStorage();
+    for (let i = 0; data[i]; i++)
+      idProducts.push(data[i].id);
+    const order = {
+      contact: {
+        firstName: inputName.value,
+        lastName: inputLastName.value,
+        address: inputAdress.value,
+        city: inputCity.value,
+        email: inputMail.value,
+      },
+      products: idProducts,
+    }
+    const options = {
+      method: 'POST',
+      body: JSON.stringify(order),
+      headers: {
+        'Accept': 'application/json',
+        "Content-Type": "application/json"
+      },
+    };
+
+    fetch("http://localhost:3000/api/products/order", options)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        localStorage.clear();
+        localStorage.setItem("orderId", data.orderId);
+
+        document.location.href = "confirmation.html";
+      })
+      .catch((err) => {
+        alert("Problème avec fetch : " + err.message);
+      });
+  }
+  // fetch("http://localhost:3000/api/products/order", {
+  //   method: "POST",
+  //   headers: { 
+  //     'Accept': 'application/json', 
+  //     'Content-Type': 'application/json' 
+  //     },
+  //   body: JSON.stringify(data)
+  // }).then((response) => {
+  //   return response.json();
+  // }).then((data) => {
+  //   console.log(data);
+  // }).catch((err) => {
+  //   console.error(err);
+  // })
+})
