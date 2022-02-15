@@ -27,7 +27,6 @@ async function renderArrayData() {
     // Add the html element with all of our products in the rendered HTML.
     let container = document.querySelector('.items');
     container.innerHTML = html;
-    console.log(html)
 
 }
 

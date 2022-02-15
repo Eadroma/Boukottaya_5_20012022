@@ -137,7 +137,7 @@ function deleteNode(id, color) {
 renderItems();
 
 
-
+  // FORM
 /**
  * @param  {} input
  * @param  {} message
@@ -188,7 +188,7 @@ function validateName(input, requiredMsg, invalidMsg) {
   if (!hasValue(input, requiredMsg)) {
     return false;
   }
-  const nameRegex = /[a-z]/gi;
+  const nameRegex = /^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/g;
   const name = input.value;
   if (!nameRegex.test(name)) {
     return showError(input, invalidMsg);

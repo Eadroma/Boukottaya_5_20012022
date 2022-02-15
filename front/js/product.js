@@ -27,10 +27,10 @@ async function renderData() {
     item_img.appendChild(img);
 
     //  Add Price
-    document.getElementById("price").innerHTML = `${data.price}`;
+    document.getElementById("price").textContent = `${data.price}`;
 
     // Add description
-    document.getElementById("description").innerHTML = `${data.description}`;
+    document.getElementById("description").textContent = `${data.description}`;
 
     // Add Colors
     (data.colors).forEach(color => {
