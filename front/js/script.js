@@ -21,12 +21,14 @@ async function renderArrayData() {
                             <h3 class="productName">${data.name}</h3>
                             <p class="productDescription">${data.description}</p>
                             </article>
-                            <a>`;
+                            </a>`;
         html += htmlSegment;
     });
     // Add the html element with all of our products in the rendered HTML.
     let container = document.querySelector('.items');
     container.innerHTML = html;
+    console.log(html)
+
 }
 
 renderArrayData();
